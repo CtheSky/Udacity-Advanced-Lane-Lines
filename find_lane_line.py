@@ -1,13 +1,17 @@
 import numpy as np
-import cv2
+from perspective_transform import left_end, right_end
+
+# Define conversions in x and y from pixels space to meters
+ym_per_pix = 30 / 720  # meters per pixel in y dimension
+xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
 
 
-def find_lane_lines(binary_warped):
+def calc_lane_lines(binary_warped):
     # Get starting point for the left and right lines
     histogram = np.sum(binary_warped[binary_warped.shape[0] / 2:, :], axis=0)
-    midpoint = np.int(histogram.shape[0] / 2)
-    left_x_base = np.argmax(histogram[:midpoint])
-    right_x_base = np.argmax(histogram[midpoint:]) + midpoint
+    midpoint = np.int((left_end + right_end) / 2)
+    left_x_base = np.argmax(histogram[left_end:midpoint]) + left_end
+    right_x_base = np.argmax(histogram[midpoint:right_end]) + midpoint
 
     # number of sliding windows and window height
     n_windows = 9
@@ -74,7 +78,7 @@ def find_lane_lines(binary_warped):
 
     left_points = np.dstack((left_x, left_y))
     right_points = np.dstack((right_x, right_y))
-    curvature = get_curvature(left_x, left_y, right_x, right_y, np.max(plot_y))
+    left_curvature, right_curvature = get_curvature(left_x, left_y, right_x, right_y, np.max(plot_y))
 
     out_img = np.dstack((binary_warped, binary_warped, binary_warped)) * 255
     out_img[nonzero_y[left_lane_indices], nonzero_x[left_lane_indices]] = [255, 0, 0]
@@ -86,17 +90,14 @@ def find_lane_lines(binary_warped):
         'left_fit_x': left_fit_x,
         'right_fit_x': right_fit_x,
         'plot_y': plot_y,
-        'curvature': curvature,
+        'left_curvature': left_curvature,
+        'right_curvature': right_curvature,
         'out_img': out_img,
         'binary_warped': binary_warped
     }
 
 
 def get_curvature(left_x, left_y, right_x, right_y, y_to_eval):
-    # Define conversions in x and y from pixels space to meters
-    ym_per_pix = 30 / 720  # meters per pixel in y dimension
-    xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
-
     # Fit new polynomials to x,y in world space
     left_fit = np.polyfit(left_y * ym_per_pix, left_x * xm_per_pix, 2)
     right_fit = np.polyfit(right_y * ym_per_pix, right_x * xm_per_pix, 2)
@@ -106,7 +107,7 @@ def get_curvature(left_x, left_y, right_x, right_y, y_to_eval):
         return ((1 + (2 * A * y + B) ** 2) ** 1.5) / np.absolute(2 * A)
 
     # Calculate the new radii of curvature
-    left_curve_rad = cal_curvature(left_fit[0], left_fit[1], y_to_eval)
-    right_curve_rad = cal_curvature(right_fit[0], right_fit[1], y_to_eval)
+    left_curvature = cal_curvature(left_fit[0], left_fit[1], y_to_eval)
+    right_curvature = cal_curvature(right_fit[0], right_fit[1], y_to_eval)
 
-    return left_curve_rad, right_curve_rad
+    return left_curvature, right_curvature
