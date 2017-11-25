@@ -2,16 +2,17 @@ import numpy as np
 import cv2
 
 # source matrix
-src = np.array([[585, 460],
+src = np.array([[580, 460],
                 [203, 720],
                 [1127, 720],
-                [695, 460]], dtype=np.float32)
+                [705, 460]], dtype=np.float32)
 
 # target matrix to transform to
 dst = np.array([[320, 0],
                 [320, 720],
                 [960, 720],
                 [960, 0]], dtype=np.float32)
+left_end, right_end = 250, 1080
 
 # transform matrix
 trans_matrix = cv2.getPerspectiveTransform(src, dst)
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = argparse.ArgumentParser('Display bird eye transformed image.')
-    parser.add_argument('-f', default='test1.jpg', help='name of test image')
+    parser.add_argument('-f', default='straight_lines1.jpg', help='name of test image')
     args = parser.parse_args()
 
     image = cv2.imread('test_images/{}'.format(args.f))
