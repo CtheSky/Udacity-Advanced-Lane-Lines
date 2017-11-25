@@ -82,11 +82,32 @@ def hls_select(img, selected, thresh=(0, 255)):
     return binary_output
 
 
-def rgb_select_yellow(img):
+def hsv_select(img, selected, thresh=(0, 255)):
+    # 1) Convert to HLS color space
+    hls = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+
+    # 2) Apply a threshold to the selected channel
+    idx = {'h': 0, 's': 1, 'v': 2}[selected.lower()]
+    channel = hls[:, :, idx]
+
+    binary_output = np.zeros_like(channel)
+    binary_output[(channel > thresh[0]) & (channel <= thresh[1])] = 1
+    return binary_output
+
+
+def suppress_shadow(img):
     r, g, b = img[:, :, 0], img[:, :, 1], img[:, :, 2]
 
     binary_output = np.zeros_like(r)
-    binary_output[(r > 220) & (g > 220) & (b > 220)] = 1
+    binary_output[(r > 30) | (g > 30) | (b > 30)] = 1
+    return binary_output
+
+
+def rgb_white(img):
+    r, g, b = img[:, :, 0], img[:, :, 1], img[:, :, 2]
+
+    binary_output = np.zeros_like(r)
+    binary_output[(r >= 210) & (g >= 200) & (b >= 190)] = 1
     return binary_output
 
 
@@ -96,12 +117,13 @@ def combined_threshold(image):
     # Apply each of the thresh-holding functions
     gradx = abs_sobel_thresh(image, orient='x', sobel_kernel=ksize, thresh=(50, 255))
     grady = abs_sobel_thresh(image, orient='y', sobel_kernel=ksize, thresh=(100, 255))
-    s_channel = hls_select(image, selected='s', thresh=(180, 255))
+    s_channel = hls_select(image, selected='s', thresh=(180, 255)) & suppress_shadow(image)
+    white = rgb_white(image)
     shadowed_yellow = hls_select(image, selected='h', thresh=(18, 63)) & \
                       hls_select(image, selected='s', thresh=(55, 255)) & \
                       hls_select(image, selected='l', thresh=(0, 140))
 
-    combined = gradx | grady | s_channel | shadowed_yellow
+    combined = gradx | grady | s_channel | shadowed_yellow | white
     return combined
 
 
@@ -110,7 +132,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = argparse.ArgumentParser('Display thresh-filtered image.')
-    parser.add_argument('-f', default='test1.jpg', help='name of test image')
+    parser.add_argument('-f', default='test3.jpg', help='name of test image')
     args = parser.parse_args()
 
     image = cv2.imread('test_images/{}'.format(args.f))
