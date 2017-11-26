@@ -56,10 +56,8 @@ def draw_lane_lines(undistorted, params):
 
     # Add curvature text to the image
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(image, 'Left radius of curvature  = {:.2f} m'.format(params['left_curvature']),
+    cv2.putText(image, 'Radius of curvature  = {:.2f} m'.format(params['curvature']),
                 (50, 50), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
-    cv2.putText(image, 'Right radius of curvature = {:.2f} m'.format(params['right_curvature']),
-                (50, 80), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
     # Add vehicle position to the image
     left_fit_point = np.float64([[[params['left_fit_x'][-1], params['plot_y'][-1]]]])
@@ -72,7 +70,7 @@ def draw_lane_lines(undistorted, params):
     dx = (vehicle_mid - lane_mid) * xm_per_pix
 
     cv2.putText(image, 'Vehicle position : {:.2f} m {} of center'.format(abs(dx), 'left' if dx < 0 else 'right'),
-                (50, 110), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                (50, 80), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
     return image
 
 
@@ -82,7 +80,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = argparse.ArgumentParser('Display processed image.')
-    parser.add_argument('-f', default='test4.jpg', help='name of test image')
+    parser.add_argument('-f', default='test1.jpg', help='name of test image')
     args = parser.parse_args()
 
     image = cv2.imread('test_images/{}'.format(args.f))
