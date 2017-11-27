@@ -40,7 +40,8 @@ def process_image(image, debug=False):
     return result
 
 
-def draw_lane_lines(undistorted, params):
+def draw_lane_lines(undistorted, params, prev_fit=None):
+    """draw curvature and vehicle information and return the image """
     warp_zero = np.zeros_like(params['binary_warped']).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
 
@@ -71,6 +72,12 @@ def draw_lane_lines(undistorted, params):
 
     cv2.putText(image, 'Vehicle position : {:.2f} m {} of center'.format(abs(dx), 'left' if dx < 0 else 'right'),
                 (50, 80), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+    # Add text to image about whether using previous fit to search for the lane lines
+    if prev_fit is not None:
+        text = 'Searching by ' + ('previous fit' if prev_fit else 'sliding window')
+        cv2.putText(image, text, (50, 110), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
     return image
 
 
@@ -80,9 +87,9 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = argparse.ArgumentParser('Display processed image.')
-    parser.add_argument('-f', default='test1.jpg', help='name of test image')
+    parser.add_argument('-f', default='test_images/test2.jpg', help='path to test image')
     args = parser.parse_args()
 
-    image = cv2.imread('test_images/{}'.format(args.f))
+    image = cv2.imread(args.f)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     result = process_image(image, debug=True)

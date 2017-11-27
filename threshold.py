@@ -112,6 +112,7 @@ def rgb_white(img):
 
 
 def combined_threshold(image):
+    """return the binary warp result of the image"""
     ksize = 5
 
     # Apply each of the thresh-holding functions
@@ -132,10 +133,10 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = argparse.ArgumentParser('Display thresh-filtered image.')
-    parser.add_argument('-f', default='test3.jpg', help='name of test image')
+    parser.add_argument('-f', default='test_images/test3.jpg', help='path to test image')
     args = parser.parse_args()
 
-    image = cv2.imread('test_images/{}'.format(args.f))
+    image = cv2.imread(args.f)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     result = combined_threshold(image)
 

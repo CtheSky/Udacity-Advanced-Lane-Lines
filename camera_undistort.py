@@ -63,10 +63,10 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = argparse.ArgumentParser('Display undistorted calibration image.')
-    parser.add_argument('-n', default=1, help='number of image')
+    parser.add_argument('-f', default='camera_cal/calibration1.jpg', help='path to test image')
     args = parser.parse_args()
 
-    img = cv2.imread('camera_cal/calibration{}.jpg'.format(args.n))
+    img = cv2.imread(args.f)
     dst = undistort_image(img)
 
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(30, 15))

@@ -32,10 +32,10 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     parser = argparse.ArgumentParser('Display bird eye transformed image.')
-    parser.add_argument('-f', default='straight_lines1.jpg', help='name of test image')
+    parser.add_argument('-f', default='test_images/straight_lines1.jpg', help='path to test image')
     args = parser.parse_args()
 
-    image = cv2.imread('test_images/{}'.format(args.f))
+    image = cv2.imread(args.f)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     result = original2bird_eye(image)
 
