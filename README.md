@@ -126,8 +126,6 @@ Two reasons for this overlap:
 * It's targeting the problem of dashed lines since missing a big part at very top/bottom can cause inaccuracy in polynomial fit.
 * The lane lines are parallel so this method should make both more robust, since it gives a chance for the other line to fill the missing part.  
 ![overlap_output.png](output_images/overlap_output.png)
-
-The lan
   
 ### Compute the curvature and vehicle position
 The curvature of a 2nd order polynomial could be computeds by:  
